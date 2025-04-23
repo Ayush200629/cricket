@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon-192x192.png">
+  <link rel="apple-touch-icon" href="icon-192x192.png">
+  <title>Reel Cricket Pro</title>
+  <style>
+   /* ---- RESET AND BASE STYLES ---- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root {
+  /* Light theme */
+  --bg-color: #f0f8ff;
+  --text-color: #333;
+  --header-bg: #1e88e5;
+  --header-text: #ffffff;
+  --reel-bg: #ffffff;
+  --reel-border: #c8e6c9;
+  --reel-text: #333333;
+  --btn-primary: #2196f3;
+  --btn-primary-hover: #0d47a1;
+  --btn-secondary: #66bb6a;
+  --btn-secondary-hover: #43a047;
+  --progress-bg: #e0e0e0;
+  --progress-fill-low: #ff9800;
+  --progress-fill-medium: #8bc34a;
+  --progress-fill-high: #4caf50;
+  --stats-bg: #e3f2fd;
+  --streak-bg: #ffeb3b;
+  --achievement-bg: rgba(33, 150, 243, 0.95);
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --result-bg: rgba(255, 255, 255, 0.9);
+}
+
+.dark-theme {
+  /* Dark theme */
+  --bg-color: #263238;
+  --text-color: #e0e0e0;
+  --header-bg: #0d47a1;
+  --header-text: #ffffff;
+  --reel-bg: #37474f;
+  --reel-border: #455a64;
+  --reel-text: #ffffff;
+  --btn-primary: #1565c0;
+  --btn-primary-hover: #0d47a1;
+  --btn-secondary: #388e3c;
+  --btn-secondary-hover: #2e7d32;
+  --progress-bg: #455a64;
+  --progress-fill-low: #ff9800;
+  --progress-fill-medium: #8bc34a;
+  --progress-fill-high: #4caf50;
+  --stats-bg: #1c313a;
+  --streak-bg: #ffc107;
+  --achievement-bg: rgba(13, 71, 161, 0.95);
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --result-bg: rgba(38, 50, 56, 0.9);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* ---- LAYOUT ---- */
+.game-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--box-shadow);
+}
+
+h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ---- STATS BAR ---- */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.stat {
+  background-color: var(--stats-bg);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.2s ease;
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+}
+
+.stat .label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 3px;
+  opacity: 0.8;
+}
+
+.stat .value {
+  display: block;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.level-name {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--btn-primary);
+  margin: 5px 0;
+}
+
+/* ---- PROGRESS BAR ---- */
+.progress-container {
+  background-color: var(--progress-bg);
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 0 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 6px;
+  transition: width 0.3s ease-in-out, background-color 0.3s;
+}
+
+.progress-bar.low {
+  background-color: var(--progress-fill-low);
+}
+
+.progress-bar.medium {
+  background-color: var(--progress-fill-medium);
+}
+
+.progress-bar.high {
+  background-color: var(--progress-fill-high);
+}
+
+/* ---- REEL BOX ---- */
+.reel-box {
+  background-color: var(--reel-bg);
+  border: 3px solid var(--reel-border);
+  border-radius: 15px;
+  padding: 30px 15px;
+  text-align: center;
+  margin: 10px 0;
+  position: relative;
+  box-shadow: var(--box-shadow);
+  transition: all 0.3s;
+  min-height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.reel-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.reel-box.paused {
+  opacity: 0.8;
+}
+
+.reel-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(to right, #f44336, #2196f3, #4caf50, #ff9800);
+  border-radius: 15px 15px 0 0;
+}
+
+.reel {
+  font-size: 40px;
+  font-weight: bold;
+  color: var(--reel-text);
+  transition: transform 0.1s;
+  user-select: none;
+}
+
+.reel.spinning {
+  animation: pulse 0.5s infinite alternate;
+}
+
+.reel.out {
+  color: #f44336;
+  text-shadow: 0 0 5px rgba(244, 67, 54, 0.5);
+}
+
+.reel.six-runs {
+  color: #9c27b0;
+  text-shadow: 0 0 5px rgba(156, 39, 176, 0.5);
+}
+
+.reel.four-runs {
+  color: #2196f3;
+  text-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+}
+
+.reel.two-runs, .reel.one-run {
+  color: #4caf50;
+  text-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.reel.dot {
+  color: #ff9800;
+  text-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+}
+
+.reel.victory {
+  color: #4caf50;
+  animation: celebrate 1s infinite alternate;
+}
+
+.reel.game-over {
+  color: #f44336;
+  animation: shake 0.5s;
+}
+
+/* ---- RECENT RESULTS ---- */
+.recent-results {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+  min-height: 40px;
+}
+
+.result-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: var(--box-shadow);
+}
+
+.result-icon.out {
+  background-color: #ffcdd2;
+  color: #d32f2f;
+}
+
+.result-icon.dot {
+  background-color: #fff9c4;
+  color: #ff6f00;
+}
+
+.result-icon.one-run, .result-icon.two-runs {
+  background-color: #c8e6c9;
+  color: #2e7d32;
+}
+
+.result-icon.four-runs {
+  background-color: #bbdefb;
+  color: #1565c0;
+}
+
+.result-icon.six-runs {
+  background-color: #e1bee7;
+  color: #6a1b9a;
+}
+
+.result-icon.fade-in {
+  animation: fadeIn 0.3s;
+}
+
+/* ---- CRICKET FIELD ---- */
+.cricket-field {
+  position: relative;
+  height: 80px;
+  margin: 10px 0;
+  background: radial-gradient(ellipse at center, #66bb6a 0%, #43a047 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.cricket-field::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 15px;
+  background-color: #ffecb3;
+  border-radius: 2px;
+}
+
+.batsman {
+  position: absolute;
+  left: 60px;
+  bottom: 10px;
+  width: 30px;
+  height: 60px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23546e7a' d='M12,2A2,2 0 0,1 14,4A2,2 0 0,1 12,6A2,2 0 0,1 10,4A2,2 0 0,1 12,2M10.5,7H13.5A2,2 0 0,1 15.5,9V14.5H14V22H10V14.5H8.5V9A2,2 0 0,1 10.5,7Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  transform-origin: bottom;
+  z-index: 2;
+}
+
+.batsman::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  bottom: 10px;
+  width: 10px;
+  height: 40px;
+  background-color: #8d6e63;
+  transform: rotate(-20deg);
+  transform-origin: bottom;
+  border-radius: 2px;
+}
+
+.batsman.swing {
+  animation: swing 0.3s ease;
+}
+
+/* ---- STREAK INDICATOR ---- */
+.streak-indicator {
+  text-align: center;
+  font-weight: bold;
+  color: #ff6f00;
+  font-size: 18px;
+  height: 30px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.streak-indicator.active {
+  opacity: 1;
+  animation: pulseText 1s infinite alternate;
+}
+
+/* ---- CONTROLS ---- */
+.controls {
+  display: flex;
+  gap: 15px;
+  margin: 10px 0;
+}
+
+.action-btn {
+  flex: 2;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: var(--btn-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--box-shadow);
+}
+
+.action-btn:hover {
+  background-color: var(--btn-primary-hover);
+  transform: translateY(-2px);
+}
+
+.power-play-btn {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: var(--btn-secondary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--box-shadow);
+}
+
+.power-play-btn:hover:not(:disabled) {
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-2px);
+}
+
+.power-play-btn.active {
+  background-color: #ff9800;
+  animation: pulse 1s infinite alternate;
+}
+
+.power-play-btn.disabled, .power-play-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-controls {
+  display: flex;
+  gap: 15px;
+  margin: 10px 0;
+}
+
+.level-btn {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: var(--btn-secondary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: none;
+  transition: all 0.2s;
+  box-shadow: var(--box-shadow);
+}
+
+.level-btn:hover:not(:disabled) {
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-2px);
+}
+
+.level-btn.disabled, .level-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- RESULT MESSAGE ---- */
+.result-message {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 0;
+  min-height: 30px;
+  position: relative;
+}
+
+.result-animation {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--result-bg);
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: var(--box-shadow);
+  animation: popIn 0.3s;
+}
+
+.result-animation.fade-out {
+  animation: fadeOut 0.5s;
+}
+
+/* ---- PAUSE BUTTON ---- */
+.pause-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  display: none;
+}
+
+.pause-btn:hover {
+  opacity: 1;
+}
+
+/* ---- COUNTDOWN TIMER ---- */
+.countdown-timer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 72px;
+  font-weight: bold;
+  color: var(--text-color);
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 20;
+  animation: fadeInOut 2.4s;
+  display: none;
+}
+
+/* ---- SOCIAL SHARE ---- */
+.social-share {
+  display: none;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.share-btn {
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #3b5998;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--box-shadow);
+}
+
+.share-btn:hover {
+  background-color: #2d4373;
+  transform: translateY(-2px);
+}
+
+/* ---- ACHIEVEMENT ---- */
+#achievement {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background-color: var(--achievement-bg);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  text-align: center;
+}
+
+#achievement.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+#achievementText {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* ---- UTILITY BUTTONS ---- */
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ---- TUTORIAL OVERLAY ---- */
+#tutorialOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.tutorial-content {
+  max-width: 500px;
+  background-color: #263238;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.tutorial-content h2 {
+  margin-bottom: 20px;
+  color: #2196f3;
+}
+
+.tutorial-content p {
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.tutorial-button {
+  padding: 12px 24px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s;
+}
+
+.tutorial-button:hover {
+  background-color: #0d47a1;
+  transform: translateY(-2px);
+}
+
+/* ---- STATS PANEL ---- */
+.stats-panel {
+  background-color: var(--stats-bg);
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.stats-panel h3 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: var(--btn-primary);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 10px;
+  background-color: var(--reel-bg);
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* ---- ANIMATIONS ---- */
+.pulse {
+  animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+@keyframes pulseText {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes swing {
+  0% { transform: rotate(0); }
+  30% { transform: rotate(-30deg); }
+  60% { transform: rotate(70deg); }
+  100% { transform: rotate(0); }
+}
+
+@keyframes celebrate {
+  0% { transform: scale(1); color: #4caf50; }
+  50% { transform: scale(1.1); color: #2196f3; }
+  100% { transform: scale(1); color: #9c27b0; }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes popIn {
+  0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
+  80% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---- RESPONSIVE DESIGN ---- */
+@media (max-width: 600px) {
+  .stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .controls {
+    flex-direction: column;
+  }
+  
+  .action-btn, .power-play-btn {
+    width: 100%;
+  }
+  
+  h1 {
+    font-size: 20px;
+  }
+  
+  .reel {
+    font-size: 32px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---- ACCESSIBILITY ---- */
+button:focus, .reel-box:focus {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}
+
+/* High contrast outline for dark theme */
+.dark-theme button:focus, .dark-theme .reel-box:focus {
+  outline: 2px solid #90caf9;
+}
+
+/* Improve button tap targets on mobile */
+@media (max-width: 600px) {
+  button {
+    min-height: 44px;
+  }
+  
+  .icon-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Reward Modal Styles */
+.reward-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s;
+}
+
+.reward-content {
+  background: linear-gradient(135deg, #2c3e50, #3498db);
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  max-width: 400px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.reward-item {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+}
+
+.reward-icon {
+  font-size: 48px;
+  margin: 10px 0;
+  animation: bounce 1s infinite;
+}
+
+.reward-details h3 {
+  color: #ffd700;
+  margin: 10px 0;
+}
+
+.coins {
+  font-size: 24px;
+  color: #ffd700;
+  margin: 15px 0;
+}
+
+.claim-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.claim-btn:hover {
+  background: #219a52;
+  transform: translateY(-2px);
+}
+
+.grand-prize .reward-content {
+  background: linear-gradient(135deg, #6a0dad, #9b59b6);
+}
+
+.special-items {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.special-item {
+  font-size: 32px;
+  animation: float 3s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+  </style>
+</head>
+<body>
+    
+    <div class="game-container">
+        <header>
+          <h1>🏏 Reel Cricket</h1>
+          <div class="header-buttons">
+            <button id="muteBtn" class="icon-btn" title="Toggle Sound">🔊</button>
+            <button id="themeToggle" class="icon-btn" title="Toggle Theme">🌙</button>
+          </div>
+        </header>
+        
+        <div class="game-area">
+          <div class="stats-bar">
+            <div class="stat">
+              <span class="label">LEVEL</span>
+              <span id="level" class="value">1</span>
+            </div>
+            <div class="stat">
+              <span class="label">TARGET</span>
+              <span id="target" class="value">30</span>
+            </div>
+            <div class="stat">
+              <span class="label">BALLS</span>
+              <span id="balls" class="value">24</span>
+            </div>
+            <div class="stat">
+              <span class="label">SCORE</span>
+              <span id="score" class="value">0</span>
+            </div>
+          </div>
+          
+          <div class="level-name" id="levelName">Village Cricket</div>
+          
+          <div id="progressBarContainer" class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+          
+          <div id="reelBox" class="reel-box">
+            <div id="reel" class="reel">READY</div>
+            <button id="pauseBtn" class="pause-btn">⏸️</button>
+            <div id="countdownTimer" class="countdown-timer">3</div>
+          </div>
+          
+          <div id="streakIndicator" class="streak-indicator"></div>
+          
+          <div id="recentResults" class="recent-results"></div>
+          
+          <div class="cricket-field">
+            <div id="batsman" class="batsman"></div>
+          </div>
+          
+          <div id="resultMessage" class="result-message">Ready to play</div>
+          
+          <div class="controls">
+            <button id="powerPlayBtn" class="power-play-btn">POWER PLAY</button>
+            <button id="actionButton" class="action-btn">START</button>
+          </div>
+          
+          <div class="level-controls">
+            <button id="nextLevelBtn" class="level-btn">NEXT LEVEL</button>
+            <button id="retryBtn" class="level-btn">RETRY</button>
+          </div>
+          
+          <div id="socialShare" class="social-share">
+            <button id="screenshotBtn" class="share-btn">SHARE SCORE</button>
+          </div>
+        </div>
+        <div class="stats-container">
+          <div class="stat">
+            <div class="stat-label">High Score</div>
+            <div id="highScore" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Total Sixes</div>
+            <div id="totalSixes" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Matches</div>
+            <div id="totalMatches" class="stat-value">0</div>
+          </div>
+        </div>
+        
+        <div id="achievement" class="achievement">
+          <div id="achievementText" class="achievement-text">Achievement Unlocked!</div>
+        </div>
+      </div>
+      
+
+  <script>
+// Game state
+const gameState = {
+  level: 1,
+  score: 0,
+  balls: 24,
+  target: 30,
+  isRunning: false,
+  isGameOver: false,
+  isPowerPlayActive: false,
+  streakCount: 0,
+  reelSpeed: 100, // Initial speed
+  lastResults: [], // Track last 5 results
+  consecutiveBoundaries: 0,
+  isPaused: false
+};
+
+// Level configuration
+const levels = [
+  { level: 1, target: 30, balls: 24, reelSpeed: 100, name: "Village Cricket" }, 
+  { level: 2, target: 45, balls: 24, reelSpeed: 90, name: "County Cricket" },  
+  { level: 3, target: 60, balls: 28, reelSpeed: 80, name: "National League" },  
+  { level: 4, target: 80, balls: 38, reelSpeed: 70, name: "International T20" },  
+  { level: 5, target: 100, balls: 54, reelSpeed: 60, name: "World Cup Final" },
+  { level: 6, target: 110, balls: 58, reelSpeed: 58, name: "Champions Clash" },
+  { level: 7, target: 120, balls: 65, reelSpeed: 56, name: "The Decider" },
+  { level: 8, target: 130, balls: 70, reelSpeed: 54, name: "Battle Royale" },
+  { level: 9, target: 140, balls: 80, reelSpeed: 52, name: "Final Showdown" },
+  { level: 10, target: 155, balls: 90, reelSpeed: 50, name: "Glory Quest" },
+  { level: 11, target: 170, balls: 95, reelSpeed: 48, name: "Legend Rising" },
+  { level: 12, target: 185, balls: 100, reelSpeed: 46, name: "Ultimate Rivalry" },
+  { level: 13, target: 200, balls: 110, reelSpeed: 44, name: "Victory Road" },
+  { level: 14, target: 220, balls: 120, reelSpeed: 42, name: "Immortal Clash" },
+  { level: 15, target: 240, balls: 120, reelSpeed: 40, name: "Hall of Fame" } 
+];
+
+// Stats tracking
+const stats = {
+  highScore: 0,
+  totalSixes: 0,
+  totalMatches: 0,
+  highestStreak: 0,
+  perfectGames: 0
+};
+
+// Audio elements
+const audio = {
+  swing: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-quick-jump-arcade-game-239.mp3'),
+  boundary: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3'),
+  out: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-lose-2027.mp3'),
+  victory: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-winning-an-extra-bonus-2061.mp3'),
+  click: new Audio('https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3')
+};
+
+
+
+// Possible reel values with their scores and probabilities
+const reelValues = [
+  { text: "OUT", score: 0, probability: 15, class: "out" },
+  { text: "1 RUN", score: 1, probability: 20, class: "one-run" },
+  { text: "2 RUNS", score: 2, probability: 15, class: "two-runs" },
+  { text: "4 RUNS", score: 4, probability: 20, class: "four-runs" },
+  { text: "6 RUNS", score: 6, probability: 10, class: "six-runs" },
+  { text: "DOT", score: 0, probability: 20, class: "dot" }
+];
+
+// Sound settings
+let isMuted = false;
+
+// Add these new constants for rewards
+const REWARDS = {
+  coins: 0,
+  trophies: [],
+  badges: [],
+  specialItems: []
+};
+
+const LEVEL_REWARDS = [
+  { level: 1, reward: "🥉 Bronze Bat", coins: 100, description: "Your first cricket bat!" },
+  { level: 2, reward: "🎯 Precision Gloves", coins: 200, description: "Improves accuracy" },
+  { level: 3, reward: "🛡️ Pro Guard", coins: 300, description: "Better protection" },
+  { level: 4, reward: "🎪 Home Ground", coins: 400, description: "Your personal stadium" },
+  { level: 5, reward: "🥈 Silver Bat", coins: 500, description: "Enhanced power!" },
+  { level: 6, reward: "🌟 Star Player Badge", coins: 600, description: "Recognition of skill" },
+  { level: 7, reward: "🎭 Lucky Helmet", coins: 700, description: "Increases critical hits" },
+  { level: 8, reward: "💫 Power Boost", coins: 800, description: "More boundaries" },
+  { level: 9, reward: "🏆 Champion Trophy", coins: 900, description: "True champion" },
+  { level: 10, reward: "🥇 Golden Bat", coins: 1000, description: "Legendary power" },
+  { level: 11, reward: "👑 Crown of Excellence", coins: 1100, description: "Royal performance" },
+  { level: 12, reward: "💎 Diamond Gloves", coins: 1200, description: "Perfect control" },
+  { level: 13, reward: "🌈 Rainbow Bat", coins: 1300, description: "Mythical power" },
+  { level: 14, reward: "⚡ Thunder Striker", coins: 1400, description: "Ultimate power" },
+  { level: 15, reward: "🏰 Hall of Fame", coins: 1500, description: "Eternal glory" }
+];
+
+const GRAND_PRIZE = {
+  reward: "🌟 LEGENDARY CRICKET MASTER 🌟",
+  coins: 5000,
+  specialItems: ["🎖️ Immortal Trophy", "👑 Crown of Legends", "🌈 Ultimate Bat"],
+  description: "You have achieved cricket immortality!"
+};
+
+// Game elements
+const elements = {
+  reel: document.getElementById('reel'),
+  reelBox: document.getElementById('reelBox'),
+  actionButton: document.getElementById('actionButton'),
+  level: document.getElementById('level'),
+  levelName: document.getElementById('levelName'),
+  target: document.getElementById('target'),
+  balls: document.getElementById('balls'),
+  score: document.getElementById('score'),
+  batsman: document.getElementById('batsman'),
+  resultMessage: document.getElementById('resultMessage'),
+  progressBar: document.getElementById('progressBar'),
+  progressBarContainer: document.getElementById('progressBarContainer'),
+  powerPlayBtn: document.getElementById('powerPlayBtn'),
+  nextLevelBtn: document.getElementById('nextLevelBtn'),
+  retryBtn: document.getElementById('retryBtn'),
+  streakIndicator: document.getElementById('streakIndicator'),
+  highScore: document.getElementById('highScore'),
+  totalSixes: document.getElementById('totalSixes'),
+  totalMatches: document.getElementById('totalMatches'),
+  achievement: document.getElementById('achievement'),
+  achievementText: document.getElementById('achievementText'),
+  themeToggle: document.getElementById('themeToggle'),
+  screenshotBtn: document.getElementById('screenshotBtn'),
+  socialShare: document.getElementById('socialShare'),
+  muteBtn: document.getElementById('muteBtn'),
+  recentResults: document.getElementById('recentResults'),
+  tutorialOverlay: document.getElementById('tutorialOverlay'),
+  pauseBtn: document.getElementById('pauseBtn'),
+  countdownTimer: document.getElementById('countdownTimer')
+};
+
+// Initialize game
+function initGame() {
+  loadGameFromStorage();
+  updateUI();
+  setupEventListeners();
+  checkLevelAvailability();
+  showTutorialIfFirstTime();
+  
+  // Add keyboard controls
+  document.addEventListener('keydown', handleKeyPress);
+  
+  // Make sure the reel box stays fixed
+  fixReelBoxPosition();
+}
+
+// Fix the reel box position
+function fixReelBoxPosition() {
+  elements.reelBox.style.position = 'relative';
+  elements.reelBox.style.overflow = 'hidden';
+  elements.reelBox.style.backgroundColor = 'var(--reel-bg)';
+  elements.reelBox.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.15)';
+  elements.reelBox.style.transition = 'all 0.3s ease';
+}
+
+// Show tutorial for first time users
+function showTutorialIfFirstTime() {
+  const tutorialSeen = localStorage.getItem('reelCricketTutorialSeen');
+  
+  if (!tutorialSeen) {
+    elements.tutorialOverlay.style.display = 'flex';
+    localStorage.setItem('reelCricketTutorialSeen', 'true');
+  }
+}
+
+// Close tutorial
+function closeTutorial() {
+  elements.tutorialOverlay.style.display = 'none';
+}
+
+// Handle keyboard controls
+function handleKeyPress(e) {
+  if (e.code === 'Space') {
+    e.preventDefault(); // Prevent scrolling
+    handleActionButtonClick();
+  } else if (e.code === 'KeyP') {
+    togglePause();
+  } else if (e.code === 'KeyM') {
+    toggleMute();
+  }
+}
+
+// Save game to local storage
+function saveGameToStorage() {
+  const gameData = {
+    currentLevel: gameState.level,
+    stats: stats
+  };
+  localStorage.setItem('reelCricketGame', JSON.stringify(gameData));
+}
+
+// Load game from local storage
+function loadGameFromStorage() {
+  const savedData = localStorage.getItem('reelCricketGame');
+  if (savedData) {
+    const gameData = JSON.parse(savedData);
+    gameState.level = gameData.currentLevel || 1;
+    
+    if (gameData.stats) {
+      stats.highScore = gameData.stats.highScore || 0;
+      stats.totalSixes = gameData.stats.totalSixes || 0;
+      stats.totalMatches = gameData.stats.totalMatches || 0;
+      stats.highestStreak = gameData.stats.highestStreak || 0;
+      stats.perfectGames = gameData.stats.perfectGames || 0;
+    }
+    
+    // Set level parameters
+    const levelData = levels[gameState.level - 1] || levels[0];
+    gameState.target = levelData.target;
+    gameState.balls = levelData.balls;
+    gameState.reelSpeed = levelData.reelSpeed;
+  }
+  
+  // Load theme preference
+  const darkTheme = localStorage.getItem('reelCricketDarkTheme');
+  if (darkTheme === 'true') {
+    document.body.classList.add('dark-theme');
+    elements.themeToggle.textContent = '☀️';
+  }
+  
+  // Load mute preference
+  const muted = localStorage.getItem('reelCricketMuted');
+  if (muted === 'true') {
+    isMuted = true;
+    elements.muteBtn.textContent = '🔇';
+  }
+}
+
+// Set up event listeners
+function setupEventListeners() {
+  elements.actionButton.addEventListener('click', handleActionButtonClick);
+  elements.reelBox.addEventListener('click', handleReelBoxClick);
+  elements.powerPlayBtn.addEventListener('click', activatePowerPlay);
+  elements.nextLevelBtn.addEventListener('click', goToNextLevel);
+  elements.retryBtn.addEventListener('click', retryLevel);
+  elements.themeToggle.addEventListener('click', toggleTheme);
+  elements.screenshotBtn.addEventListener('click', shareScore);
+  elements.muteBtn.addEventListener('click', toggleMute);
+  elements.tutorialOverlay.addEventListener('click', closeTutorial);
+  elements.pauseBtn.addEventListener('click', togglePause);
+  
+  // Add touch event support for mobile
+  if ('ontouchstart' in window) {
+    elements.reelBox.addEventListener('touchstart', handleReelBoxClick);
+  }
+  
+  // Add hover effects for buttons
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    button.addEventListener('mouseover', () => playSound('click', 0.2));
+  });
+}
+
+// Toggle mute
+function toggleMute() {
+  isMuted = !isMuted;
+  elements.muteBtn.textContent = isMuted ? '🔇' : '🔊';
+  localStorage.setItem('reelCricketMuted', isMuted);
+}
+
+// Play sound
+function playSound(soundType, volume = 1) {
+  if (isMuted) return;
+  
+  const sound = audio[soundType];
+  if (sound) {
+    sound.volume = volume;
+    sound.currentTime = 0;
+    sound.play().catch(e => console.log("Audio play failed:", e));
+  }
+}
+
+// Toggle pause
+function togglePause() {
+  if (!gameState.isRunning) return;
+  
+  gameState.isPaused = !gameState.isPaused;
+  
+  if (gameState.isPaused) {
+    elements.pauseBtn.textContent = '▶️';
+    elements.reelBox.classList.add('paused');
+    elements.countdownTimer.style.display = 'none';
+  } else {
+    elements.pauseBtn.textContent = '⏸️';
+    elements.reelBox.classList.remove('paused');
+    startReel();
+  }
+}
+
+// Handle the main action button click
+function handleActionButtonClick() {
+  playSound('click');
+  
+  if (gameState.isGameOver) {
+    restartGame();
+    return;
+  }
+
+  if (!gameState.isRunning) {
+    // Start the game
+    startGame();
+    elements.actionButton.textContent = "SWING";
+    elements.actionButton.classList.add('pulse');
+  } else {
+    // Swing the bat
+    swing();
+  }
+}
+
+// Handle clicking on the reel box (same as action button)
+function handleReelBoxClick() {
+  if (gameState.isRunning && !gameState.isPaused) {
+    swing();
+  }
+}
+
+// Start the game
+function startGame() {
+  gameState.isRunning = true;
+  gameState.isGameOver = false;
+  gameState.isPaused = false;
+  gameState.score = 0;
+  gameState.streakCount = 0;
+  gameState.lastResults = [];
+  gameState.consecutiveBoundaries = 0;
+  
+  // Get level data
+  const levelData = levels[gameState.level - 1];
+  gameState.target = levelData.target;
+  gameState.balls = levelData.balls;
+  gameState.reelSpeed = levelData.reelSpeed;
+  
+  elements.resultMessage.textContent = `Level ${gameState.level}: ${levelData.name}`;
+  elements.actionButton.textContent = "SWING";
+  elements.pauseBtn.textContent = '⏸️';
+  elements.reelBox.classList.remove('paused');
+  elements.nextLevelBtn.style.display = "none";
+  elements.retryBtn.style.display = "none";
+  elements.socialShare.style.display = "none";
+  elements.recentResults.innerHTML = '';
+  elements.powerPlayBtn.classList.remove('active', 'disabled');
+  elements.powerPlayBtn.disabled = false;
+  
+  updateUI();
+  startReel();
+  
+  // Add countdown animation
+  showCountdown();
+}
+
+// Show countdown before game starts
+function showCountdown() {
+  const countdownEl = elements.countdownTimer;
+  countdownEl.style.display = 'flex';
+  countdownEl.textContent = '3';
+  
+  const countDown = (num) => {
+    if (num <= 0) {
+      countdownEl.style.display = 'none';
+      return;
+    }
+    
+    countdownEl.textContent = num;
+    setTimeout(() => countDown(num-1), 800);
+  };
+  
+  countDown(3);
+}
+
+// Start the reel spinning
+function startReel() {
+  if (!gameState.isRunning || gameState.isPaused) return;
+  
+  const randomIndex = getWeightedRandomIndex();
+  const reelValue = reelValues[randomIndex];
+  
+  elements.reel.textContent = reelValue.text;
+  elements.reel.className = `reel spinning ${reelValue.class}`;
+  
+  setTimeout(() => {
+    if (gameState.isRunning && !gameState.isPaused) {
+      startReel();
+    }
+  }, gameState.reelSpeed);
+}
+
+// Get a weighted random index based on probabilities
+function getWeightedRandomIndex() {
+  // Add streak-based adjustments to probabilities
+  let adjustedReelValues = [...reelValues];
+  
+  // Increase chance of boundaries when on a streak
+  if (gameState.streakCount >= 3) {
+    adjustedReelValues = adjustedReelValues.map(value => {
+      let adjustedValue = {...value};
+      if (value.score >= 4) {
+        adjustedValue.probability = value.probability * 1.2; // 20% increase for boundaries
+      } else if (value.text === "OUT") {
+        adjustedValue.probability = value.probability * 1.1; // 10% increase for out (risk)
+      }
+      return adjustedValue;
+    });
+  }
+  
+  const totalWeight = adjustedReelValues.reduce((sum, value) => sum + value.probability, 0);
+  let random = Math.floor(Math.random() * totalWeight);
+  
+  for (let i = 0; i < adjustedReelValues.length; i++) {
+    random -= adjustedReelValues[i].probability;
+    if (random < 0) {
+      return i;
+    }
+  }
+  return 0;
+}
+
+// Swing the bat
+function swing() {
+  if (!gameState.isRunning || gameState.isPaused || gameState.balls <= 0) return;
+  
+  gameState.balls--;
+  elements.batsman.classList.add('swing');
+  playSound('swing');
+  
+  // Get the current value on the reel
+  const reelText = elements.reel.textContent;
+  const reelValue = reelValues.find(v => v.text === reelText);
+  
+  if (reelValue) {
+    let runScored = reelValue.score;
+    
+    // Apply power play bonus if active
+    if (gameState.isPowerPlayActive && runScored > 0) {
+      runScored *= 2;
+      gameState.isPowerPlayActive = false;
+      elements.powerPlayBtn.disabled = true;
+      elements.powerPlayBtn.classList.remove('active');
+      elements.powerPlayBtn.classList.add('disabled');
+    }
+    
+    // Handle out case
+    if (reelText === "OUT") {
+      showResultAnimation("OUT! 😫");
+      playSound('out');
+      gameState.streakCount = 0;
+      gameState.consecutiveBoundaries = 0;
+      addResultIcon("OUT", "out");
+    } else {
+      // Update score and streak
+      gameState.score += runScored;
+      
+      if (runScored === 6) {
+        stats.totalSixes++;
+        gameState.streakCount++;
+        gameState.consecutiveBoundaries++;
+        showResultAnimation("SIX! 🔥");
+        playSound('boundary');
+        addResultIcon("6", "six-runs");
+        
+        // Special achievement for multiple sixes
+        if (gameState.consecutiveBoundaries >= 3) {
+          showAchievement("Hat-trick of boundaries! 🎯🎯🎯");
+        }
+      } else if (runScored === 4) {
+        gameState.streakCount++;
+        gameState.consecutiveBoundaries++;
+        showResultAnimation("FOUR! 👏");
+        playSound('boundary', 0.7);
+        addResultIcon("4", "four-runs");
+      } else if (runScored > 0) {
+        gameState.consecutiveBoundaries = 0;
+        showResultAnimation(`${runScored} RUN${runScored > 1 ? 'S' : ''}! 👌`);
+        addResultIcon(runScored.toString(), `${runScored}-run${runScored > 1 ? 's' : ''}`);
+      } else {
+        gameState.streakCount = 0;
+        gameState.consecutiveBoundaries = 0;
+        showResultAnimation("DOT BALL! 😐");
+        addResultIcon("•", "dot");
+      }
+      
+      // Update highest streak if current streak is higher
+      if (gameState.streakCount > stats.highestStreak) {
+        stats.highestStreak = gameState.streakCount;
+        if (stats.highestStreak >= 5) {
+          showAchievement(`New Streak Record: ${stats.highestStreak}! 🔥`);
+        }
+      }
+      
+      updateStreakIndicator();
+    }
+  }
+  
+  // Update the UI
+  updateUI();
+  
+  // Reset batsman animation
+  setTimeout(() => {
+    elements.batsman.classList.remove('swing');
+  }, 300);
+  
+  // Check game end conditions
+  checkGameEnd();
+}
+
+// Add result icon to recent results
+function addResultIcon(value, className) {
+  const resultIcon = document.createElement('span');
+  resultIcon.className = `result-icon ${className}`;
+  resultIcon.textContent = value;
+  
+  elements.recentResults.appendChild(resultIcon);
+  
+  // Keep only last 5 results
+  gameState.lastResults.push({value, className});
+  if (gameState.lastResults.length > 5) {
+    gameState.lastResults.shift();
+    if (elements.recentResults.children.length > 5) {
+      elements.recentResults.removeChild(elements.recentResults.children[0]);
+    }
+  }
+  
+  // Add fade-in animation
+  resultIcon.classList.add('fade-in');
+  setTimeout(() => {
+    resultIcon.classList.remove('fade-in');
+  }, 500);
+}
+
+// Show a result animation
+function showResultAnimation(text) {
+  const resultAnim = document.createElement('div');
+  resultAnim.className = 'result-animation';
+  resultAnim.textContent = text;
+  elements.resultMessage.appendChild(resultAnim);
+  
+  setTimeout(() => {
+    resultAnim.classList.add('fade-out');
+    setTimeout(() => {
+      elements.resultMessage.removeChild(resultAnim);
+    }, 500);
+  }, 1000);
+}
+
+// Update the streak indicator
+function updateStreakIndicator() {
+  elements.streakIndicator.textContent = '';
+  
+  if (gameState.streakCount >= 2) {
+    elements.streakIndicator.textContent = `${gameState.streakCount}x STREAK! 🔥`;
+    elements.streakIndicator.classList.add('active');
+    
+    setTimeout(() => {
+      elements.streakIndicator.classList.remove('active');
+    }, 1500);
+  }
+}
+
+// Check if the game has ended
+function checkGameEnd() {
+  if (gameState.balls <= 0 || gameState.score >= gameState.target) {
+    gameState.isRunning = false;
+    gameState.isGameOver = true;
+    gameState.isPaused = false;
+    
+    elements.reel.className = 'reel';
+    elements.actionButton.classList.remove('pulse');
+    elements.pauseBtn.style.display = 'none';
+    
+    // Victory condition
+    if (gameState.score >= gameState.target) {
+      elements.reel.textContent = "VICTORY!";
+      elements.reel.className = 'reel victory';
+      elements.actionButton.textContent = "NEW GAME";
+      elements.resultMessage.textContent = "Level Completed! 🎉";
+      elements.nextLevelBtn.style.display = "block";
+      playSound('victory');
+      
+      // Give level reward
+      giveReward(gameState.level);
+      
+      // Perfect game (no wickets lost)
+      if (gameState.balls > 0 && !gameState.lastResults.some(r => r.value === "OUT")) {
+        stats.perfectGames++;
+        showAchievement("Perfect Game! No wickets lost! 🏆");
+      }
+    } else {
+      // Loss condition
+      elements.reel.textContent = "GAME OVER";
+      elements.reel.className = 'reel game-over';
+      elements.actionButton.textContent = "NEW GAME";
+      elements.resultMessage.textContent = "Target Missed! 😢";
+      elements.retryBtn.style.display = "block";
+      playSound('out', 0.7);
+    }
+    
+    // Update highest score if needed
+    if (gameState.score > stats.highScore) {
+      stats.highScore = gameState.score;
+      showAchievement("New High Score: " + stats.highScore + "! 🏆");
+    }
+    
+    // Increment matches played
+    stats.totalMatches++;
+    
+    elements.socialShare.style.display = "block";
+    
+    // Save game data
+    saveGameToStorage();
+    updateUI();
+  }
+}
+
+// Activate power play
+function activatePowerPlay() {
+  if (!gameState.isRunning || gameState.isPaused || gameState.isPowerPlayActive) return;
+  
+  playSound('click');
+  gameState.isPowerPlayActive = true;
+  elements.powerPlayBtn.classList.add('active');
+  
+  // Power play countdown
+  let powerPlayTime = 5;
+  const powerPlayInterval = setInterval(() => {
+    if (!gameState.isPowerPlayActive) {
+      clearInterval(powerPlayInterval);
+      return;
+    }
+    
+    powerPlayTime--;
+    elements.powerPlayBtn.textContent = `POWER PLAY (${powerPlayTime}s)`;
+    
+    if (powerPlayTime <= 0) {
+      clearInterval(powerPlayInterval);
+      gameState.isPowerPlayActive = false;
+      elements.powerPlayBtn.textContent = 'POWER PLAY';
+      elements.powerPlayBtn.disabled = true;
+      elements.powerPlayBtn.classList.remove('active');
+      elements.powerPlayBtn.classList.add('disabled');
+    }
+  }, 1000);
+}
+
+// Go to next level
+function goToNextLevel() {
+  playSound('click');
+  
+  if (gameState.level < levels.length) {
+    gameState.level++;
+    checkLevelAvailability();
+    startGame();
+  } else {
+    showAchievement("Congratulations! You completed all levels! 🏆");
+  }
+}
+
+// Retry current level
+function retryLevel() {
+  playSound('click');
+  startGame();
+}
+
+// Restart the game
+function restartGame() {
+  playSound('click');
+  gameState.level = 1;
+  startGame();
+}
+
+// Check if next level is available
+function checkLevelAvailability() {
+  const nextLevelAvailable = gameState.level < levels.length;
+  elements.nextLevelBtn.disabled = !nextLevelAvailable;
+  if (!nextLevelAvailable) {
+    elements.nextLevelBtn.classList.add('disabled');
+  } else {
+    elements.nextLevelBtn.classList.remove('disabled');
+  }
+}
+
+// Update the UI
+function updateUI() {
+  elements.level.textContent = gameState.level;
+  elements.levelName.textContent = levels[gameState.level - 1].name;
+  elements.target.textContent = gameState.target;
+  elements.balls.textContent = gameState.balls;
+  elements.score.textContent = gameState.score;
+  elements.highScore.textContent = stats.highScore;
+  elements.totalSixes.textContent = stats.totalSixes;
+  elements.totalMatches.textContent = stats.totalMatches;
+  
+  // Update progress bar
+  const progress = Math.min(100, (gameState.score / gameState.target) * 100);
+  elements.progressBar.style.width = `${progress}%`;
+  
+  // Color the progress bar based on progress
+  if (progress < 30) {
+    elements.progressBar.className = 'progress-bar low';
+  } else if (progress < 70) {
+    elements.progressBar.className = 'progress-bar medium';
+  } else {
+    elements.progressBar.className = 'progress-bar high';
+  }
+  
+  // Update power play button
+  elements.powerPlayBtn.disabled = !gameState.isRunning || gameState.isPaused || gameState.isPowerPlayActive;
+  
+  // Show/hide pause button
+  elements.pauseBtn.style.display = gameState.isRunning ? 'block' : 'none';
+}
+
+// Show achievement
+function showAchievement(text) {
+  elements.achievementText.textContent = text;
+  elements.achievement.classList.add('show');
+  
+  // Play achievement sound
+  playSound('boundary', 0.5);
+  
+  setTimeout(() => {
+    elements.achievement.classList.remove('show');
+  }, 3000);
+}
+
+// Toggle theme
+function toggleTheme() {
+  playSound('click');
+  document.body.classList.toggle('dark-theme');
+  const isDarkTheme = document.body.classList.contains('dark-theme');
+  elements.themeToggle.textContent = isDarkTheme ? '☀️' : '🌙';
+  localStorage.setItem('reelCricketDarkTheme', isDarkTheme);
+}
+
+// Share score (simple implementation)
+function shareScore() {
+  playSound('click');
+  
+  const levelName = levels[gameState.level - 1].name;
+  const shareText = `🏏 Reel Cricket: Level ${gameState.level} (${levelName})\n` +
+                    `Score: ${gameState.score}/${gameState.target}\n` +
+                    `Balls Remaining: ${gameState.balls}\n` +
+                    `Play Reel Cricket now!`;
+                    
+  if (navigator.share) {
+    navigator.share({
+      title: 'My Reel Cricket Score',
+      text: shareText
+    }).catch(err => {
+      console.error('Share failed:', err);
+      fallbackShare(shareText);
+    });
+  } else {
+    fallbackShare(shareText);
+  }
+}
+
+// Fallback share method
+function fallbackShare(text) {
+  // Create a temporary textarea
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  
+  // Select and copy the text
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+  
+  // Show confirmation
+  showAchievement("Score copied to clipboard! 📋");
+}
+
+// Add these functions to handle rewards
+function giveReward(level) {
+  const reward = LEVEL_REWARDS[level - 1];
+  REWARDS.coins += reward.coins;
+  REWARDS.trophies.push(reward.reward);
+  
+  showRewardScreen(reward);
+  saveRewards();
+}
+
+function showRewardScreen(reward) {
+  // Create and show the reward modal
+  const rewardModal = document.createElement('div');
+  rewardModal.className = 'reward-modal';
+  rewardModal.innerHTML = `
+    <div class="reward-content">
+      <h2>Level Complete!</h2>
+      <div class="reward-item">
+        <div class="reward-icon">${reward.reward}</div>
+        <div class="reward-details">
+          <h3>You earned:</h3>
+          <p>${reward.description}</p>
+          <p class="coins">+${reward.coins} 🪙</p>
+        </div>
+      </div>
+      <button class="claim-btn">CLAIM REWARD</button>
+    </div>
+  `;
+  
+  document.body.appendChild(rewardModal);
+  
+  // Add click handler for claim button
+  const claimBtn = rewardModal.querySelector('.claim-btn');
+  claimBtn.addEventListener('click', () => {
+    rewardModal.remove();
+    if (gameState.level === levels.length) {
+      showGrandPrize();
+    }
+  });
+}
+
+function showGrandPrize() {
+  // Create and show the grand prize modal
+  const grandPrizeModal = document.createElement('div');
+  grandPrizeModal.className = 'reward-modal grand-prize';
+  grandPrizeModal.innerHTML = `
+    <div class="reward-content">
+      <h2>🎊 CONGRATULATIONS 🎊</h2>
+      <h3>You've Completed All Levels!</h3>
+      <div class="reward-item">
+        <div class="reward-icon">${GRAND_PRIZE.reward}</div>
+        <div class="reward-details">
+          <h3>Grand Prize:</h3>
+          <p>${GRAND_PRIZE.description}</p>
+          <p class="coins">+${GRAND_PRIZE.coins} 🪙</p>
+          <div class="special-items">
+            ${GRAND_PRIZE.specialItems.map(item => `<div class="special-item">${item}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <button class="claim-btn">CLAIM GRAND PRIZE</button>
+    </div>
+  `;
+  
+  document.body.appendChild(grandPrizeModal);
+  
+  // Add click handler for claim button
+  const claimBtn = grandPrizeModal.querySelector('.claim-btn');
+  claimBtn.addEventListener('click', () => {
+    REWARDS.coins += GRAND_PRIZE.coins;
+    REWARDS.specialItems.push(...GRAND_PRIZE.specialItems);
+    saveRewards();
+    grandPrizeModal.remove();
+  });
+}
+
+// Initialize the game when the page loads
+document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+  </body>
+</html>
